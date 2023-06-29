@@ -1,0 +1,68 @@
+version: '3'
+
+tasks:
+  config:
+    desc: "config"
+    cmds:
+      - docker-compose config
+  build:
+    desc: "build"
+    cmds:
+      - docker-compose build --pull
+  create:
+    desc: "create"
+    cmds:
+      - docker-compose create
+  start:
+    desc: "start"
+    cmds:
+      - docker-compose start
+  run:
+    desc: "create start"
+    cmds:
+      - task: create
+      - task: start
+  init:
+    desc: "down build run"
+    cmds:
+      - task: down
+      - task: build
+      - task: run
+
+  stop:
+    desc: "stop"
+    cmds:
+      - docker-compose stop
+  down:
+    desc: "down"
+    cmds:
+      - docker-compose down
+
+  sh-php-cli:
+    desc: "exec sh"
+    cmds:
+      - docker-compose run php-cli /bin/sh
+
+
+  ci-up:
+    desc: "ci build"
+    cmds:
+      - task: ci-down
+      - docker-compose -f docker-compose.ci.yml build --pull
+      - docker-compose -f docker-compose.ci.yml up -d
+      - docker-compose -f docker-compose.ci.yml exec -T php-cli composer install
+
+  ci-run-test:
+    desc: "ci run unit test"
+    cmds:
+      - docker-compose -f docker-compose.ci.yml exec -T php-cli composer run-script test
+
+  ci-run-code-style:
+    desc: "ci run code-style test"
+    cmds:
+      - docker-compose -f docker-compose.ci.yml exec -T php-cli composer run-script code_style
+
+  ci-down:
+    desc: "ci down"
+    cmds:
+      - docker-compose -f docker-compose.ci.yml down

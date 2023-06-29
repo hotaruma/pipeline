@@ -1,0 +1,11 @@
+version: "3"
+
+services:
+    php-cli:
+      user: $UID:$GID
+      image: ${PROJECT_NAME}_php_cli:1.0
+      build:
+        context: ./
+        dockerfile: ./docker/dev/php-cli/Dockerfile
+      volumes:
+        - ./:/app

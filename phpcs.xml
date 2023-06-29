@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="coding-style">
+    <rule ref="PSR12">
+        <exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing"/>
+    </rule>
+    <file>src</file>
+</ruleset>

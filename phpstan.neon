@@ -1,0 +1,18 @@
+parameters:
+    treatPhpDocTypesAsCertain: false
+    level: max
+    paths:
+        - src
+    typeAliases:
+    	TA_C_MiddlewareStoreInterface: 'Hotaruma\Pipeline\Interfaces\MiddlewareStore\MiddlewareStoreInterface'
+    	TA_C_MiddlewareInterface: 'Psr\Http\Server\MiddlewareInterface'
+    	TA_C_RequestHandlerInterface: 'Psr\Http\Server\RequestHandlerInterface'
+    	TA_C_PipelineInterface: 'Hotaruma\Pipeline\Interfaces\Pipeline\PipelineInterface'
+    	TA_C_ServerRequestInterface: 'Psr\Http\Message\ServerRequestInterface'
+    	TA_C_ResponseInterface: 'Psr\Http\Message\ResponseInterface'
+
+    	TA_MiddlewareStore: 'TA_C_MiddlewareStoreInterface<int, TA_C_MiddlewareInterface>'
+    	TA_Pipeline: 'TA_C_PipelineInterface<TA_MiddlewareStore>'
+    	TA_MiddlewareTypes: 'TA_C_MiddlewareInterface|TA_C_RequestHandlerInterface|class-string<TA_C_MiddlewareInterface|TA_C_RequestHandlerInterface>'
+    	TA_RequestHandlerTypes:
+    	    'TA_C_RequestHandlerInterface|TA_C_PipelineInterface|callable(TA_C_ServerRequestInterface): TA_C_ResponseInterface|class-string'
