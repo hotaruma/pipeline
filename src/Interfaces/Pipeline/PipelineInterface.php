@@ -7,7 +7,8 @@ namespace Hotaruma\Pipeline\Interfaces\Pipeline;
 use Hotaruma\Pipeline\Exception\{MiddlewareResolverInvalidArgumentException,
     NotFoundContainerException,
     PipelineEmptyStoreException,
-    RequestHandlerResolverInvalidArgumentException};
+    RequestHandlerResolverInvalidArgumentException
+};
 use Hotaruma\Pipeline\Interfaces\{Resolver\MiddlewareResolverInterface,
     Resolver\RequestHandlerResolverInterface,
     MiddlewareStore\MiddlewareStoreInterface
@@ -23,14 +24,15 @@ interface PipelineInterface extends RequestHandlerInterface, MiddlewareInterface
     /**
      * Add middleware to queue.
      *
-     * @param TA_MiddlewareTypes|array<TA_MiddlewareTypes> $middleware
+     * @param MiddlewareInterface|RequestHandlerInterface|string ...$middlewares
      * @return PipelineInterface
      *
      * @throws NotFoundContainerException|MiddlewareResolverInvalidArgumentException|RequestHandlerResolverInvalidArgumentException
      *
+     * @phpstan-param TA_MiddlewareTypes ...$middlewares
      * @phpstan-return static
      */
-    public function pipe(MiddlewareInterface|RequestHandlerInterface|string|array $middleware): PipelineInterface;
+    public function pipe(MiddlewareInterface|RequestHandlerInterface|string ...$middlewares): PipelineInterface;
 
     /**
      * Start pipeline without final handler.
@@ -91,5 +93,15 @@ interface PipelineInterface extends RequestHandlerInterface, MiddlewareInterface
      *
      * @phpstan-return static
      */
-    public function handlerResolver(RequestHandlerResolverInterface $handlerResolver): PipelineInterface;
+    public function requestHandlerResolver(RequestHandlerResolverInterface $handlerResolver): PipelineInterface;
+
+    /**
+     * @return MiddlewareResolverInterface
+     */
+    public function getMiddlewareResolver(): MiddlewareResolverInterface;
+
+    /**
+     * @return RequestHandlerResolverInterface
+     */
+    public function getRequestHandlerResolver(): RequestHandlerResolverInterface;
 }

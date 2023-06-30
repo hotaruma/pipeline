@@ -37,7 +37,7 @@ class PipelineTest extends TestCase
 
         $pipeline->pipe($middleware1);
         $pipeline->pipe($middleware2);
-        $pipeline->pipe([$middleware3, $middleware4]);
+        $pipeline->pipe($middleware3, $middleware4);
         $pipeline->pipe($handler);
 
         $resultResponse = $pipeline->handle($request);
@@ -79,7 +79,7 @@ class PipelineTest extends TestCase
         $pipeline->pipe($middleware1);
         $pipeline->pipe($middleware::class);
         $pipeline->pipe($middleware2);
-        $pipeline->pipe([$middleware::class, $middleware::class]);
+        $pipeline->pipe($middleware::class, $middleware::class);
         $pipeline->pipe($handler::class);
 
         $resultResponse = $pipeline->handle($request);
@@ -169,7 +169,7 @@ class PipelineTest extends TestCase
 
         $requestHandlerResolver = new RequestHandlerResolver();
         $requestHandlerResolver->container($container);
-        $pipeline->handlerResolver($requestHandlerResolver);
+        $pipeline->requestHandlerResolver($requestHandlerResolver);
 
         $middleware1 = $this->createMiddleware();
         $middleware2 = $this->createMiddleware();
@@ -205,7 +205,7 @@ class PipelineTest extends TestCase
 
         $requestHandlerResolver = new RequestHandlerResolver();
         $requestHandlerResolver->container($container);
-        $pipeline->handlerResolver($requestHandlerResolver);
+        $pipeline->requestHandlerResolver($requestHandlerResolver);
 
         $middleware1 = $this->createMiddleware();
         $middleware2 = $this->createMiddleware();

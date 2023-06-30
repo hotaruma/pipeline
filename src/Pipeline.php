@@ -30,24 +30,22 @@ class Pipeline implements PipelineInterface
     /**
      * @param MiddlewareStoreInterface $middlewareStore
      * @param MiddlewareResolverInterface $middlewareResolver
-     * @param RequestHandlerResolverInterface $handlerResolver
+     * @param RequestHandlerResolverInterface $requestHandlerResolver
      *
      * @phpstan-param TMiddlewareStore $middlewareStore
      */
     public function __construct(
         protected MiddlewareStoreInterface        $middlewareStore = new MiddlewareStore(),
         protected MiddlewareResolverInterface     $middlewareResolver = new MiddlewareResolver(),
-        protected RequestHandlerResolverInterface $handlerResolver = new RequestHandlerResolver()
+        protected RequestHandlerResolverInterface $requestHandlerResolver = new RequestHandlerResolver()
     ) {
     }
 
     /**
      * @inheritDoc
      */
-    public function pipe(MiddlewareInterface|RequestHandlerInterface|string|array $middleware): PipelineInterface
+    public function pipe(MiddlewareInterface|RequestHandlerInterface|string ...$middlewares): PipelineInterface
     {
-        $middlewares = is_array($middleware) ? $middleware : [$middleware];
-
         foreach ($middlewares as $middleware) {
             $middleware = $this->getMiddlewareResolver()->resolve($middleware);
             $this->getMiddlewareStore()->append($middleware);
@@ -61,7 +59,7 @@ class Pipeline implements PipelineInterface
      */
     public function process(ServerRequestInterface $request, RequestHandlerInterface|PipelineInterface|callable|string $handler): ResponseInterface
     {
-        $handler = $this->getHandlerResolver()->resolve($handler);
+        $handler = $this->getRequestHandlerResolver()->resolve($handler);
         $this->pipe($handler);
 
         return $this->handle($request);
@@ -113,10 +111,26 @@ class Pipeline implements PipelineInterface
     /**
      * @inheritDoc
      */
-    public function handlerResolver(RequestHandlerResolverInterface $handlerResolver): PipelineInterface
+    public function requestHandlerResolver(RequestHandlerResolverInterface $handlerResolver): PipelineInterface
     {
-        $this->handlerResolver = $handlerResolver;
+        $this->requestHandlerResolver = $handlerResolver;
         return $this;
+    }
+
+    /**
+     * @return MiddlewareResolverInterface
+     */
+    public function getMiddlewareResolver(): MiddlewareResolverInterface
+    {
+        return $this->middlewareResolver;
+    }
+
+    /**
+     * @return RequestHandlerResolverInterface
+     */
+    public function getRequestHandlerResolver(): RequestHandlerResolverInterface
+    {
+        return $this->requestHandlerResolver;
     }
 
     /**
@@ -130,28 +144,12 @@ class Pipeline implements PipelineInterface
     }
 
     /**
-     * @return MiddlewareResolverInterface
-     */
-    protected function getMiddlewareResolver(): MiddlewareResolverInterface
-    {
-        return $this->middlewareResolver;
-    }
-
-    /**
-     * @return RequestHandlerResolverInterface
-     */
-    protected function getHandlerResolver(): RequestHandlerResolverInterface
-    {
-        return $this->handlerResolver;
-    }
-
-    /**
      * @return RequestHandlerInterface
      *
      * @throws RequestHandlerResolverInvalidArgumentException
      */
     protected function getSelfRequestHandlerInstance(): RequestHandlerInterface
     {
-        return $this->selfRequestHandlerInstance ??= $this->getHandlerResolver()->resolve($this);
+        return $this->selfRequestHandlerInstance ??= $this->getRequestHandlerResolver()->resolve($this);
     }
 }
