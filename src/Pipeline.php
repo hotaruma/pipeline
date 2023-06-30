@@ -16,7 +16,7 @@ use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
 /**
- * @template TMiddlewareStore of MiddlewareStoreInterface<mixed, MiddlewareInterface>
+ * @template TMiddlewareStore of TA_MiddlewareStore
  *
  * @implements PipelineInterface<TMiddlewareStore>
  */
@@ -49,9 +49,7 @@ class Pipeline implements PipelineInterface
         $middlewares = is_array($middleware) ? $middleware : [$middleware];
 
         foreach ($middlewares as $middleware) {
-            if (!$middleware instanceof MiddlewareInterface) {
-                $middleware = $this->getMiddlewareResolver()->resolve($middleware);
-            }
+            $middleware = $this->getMiddlewareResolver()->resolve($middleware);
             $this->getMiddlewareStore()->append($middleware);
         }
 
@@ -61,8 +59,9 @@ class Pipeline implements PipelineInterface
     /**
      * @inheritDoc
      */
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    public function process(ServerRequestInterface $request, RequestHandlerInterface|PipelineInterface|callable|string $handler): ResponseInterface
     {
+        $handler = $this->getHandlerResolver()->resolve($handler);
         $this->pipe($handler);
 
         return $this->handle($request);
@@ -73,14 +72,24 @@ class Pipeline implements PipelineInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        if ($this->getMiddlewareStore()->hasNext()) {
+        if (!$this->getMiddlewareStore()->hasNext()) {
             throw new PipelineEmptyStoreException();
         }
 
-        $nextMiddleware = $this->getMiddlewareStore()->receive();
-        $nextHandler = $nextMiddleware instanceof PipelineInterface ? $this->getSelfRequestHandlerInstance() : $this;
+        $next = $this->getMiddlewareStore()->receive();
+        return match (true) {
+            $next instanceof PipelineInterface => $next->process($request, $this->getSelfRequestHandlerInstance()),
+            $next instanceof MiddlewareInterface => $next->process($request, $this),
+            $next instanceof RequestHandlerInterface => $next->handle($request),
+        };
+    }
 
-        return $nextMiddleware->process($request, $nextHandler);
+    /**
+     * @inheritDoc
+     */
+    public function rewind(): void
+    {
+        $this->getMiddlewareStore()->rewind();
     }
 
     /**
@@ -141,7 +150,7 @@ class Pipeline implements PipelineInterface
      *
      * @throws RequestHandlerResolverInvalidArgumentException
      */
-    public function getSelfRequestHandlerInstance(): RequestHandlerInterface
+    protected function getSelfRequestHandlerInstance(): RequestHandlerInterface
     {
         return $this->selfRequestHandlerInstance ??= $this->getHandlerResolver()->resolve($this);
     }

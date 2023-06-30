@@ -4,34 +4,32 @@ declare(strict_types=1);
 
 namespace Hotaruma\Pipeline\Interfaces\MiddlewareStore;
 
-use Iterator;
 use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 /**
- * @template TKey
- * @template TValue of MiddlewareInterface
- *
- * @extends Iterator<TKey, TValue>
+ * @template TValue of MiddlewareInterface|RequestHandlerInterface
  */
-interface MiddlewareStoreInterface extends Iterator
+interface MiddlewareStoreInterface
 {
     /**
      * Add middleware to store.
      *
-     * @param MiddlewareInterface $middleware
+     * @param MiddlewareInterface|RequestHandlerInterface $middleware
      * @return void
      *
      * @phpstan-param TValue $middleware
      */
-    public function append(MiddlewareInterface $middleware): void;
+    public function append(MiddlewareInterface|RequestHandlerInterface $middleware): void;
 
     /**
      * Return next middleware.
      *
-     * @return MiddlewareInterface
+     * @return MiddlewareInterface|RequestHandlerInterface
+     *
      * @phpstan-return TValue
      */
-    public function receive(): MiddlewareInterface;
+    public function receive(): MiddlewareInterface|RequestHandlerInterface;
 
     /**
      * Checks if there is a next middleware in the store.
@@ -39,4 +37,11 @@ interface MiddlewareStoreInterface extends Iterator
      * @return bool
      */
     public function hasNext(): bool;
+
+    /**
+     * Rewind middleware position to start.
+     *
+     * @return void
+     */
+    public function rewind(): void;
 }

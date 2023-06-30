@@ -13,11 +13,11 @@ interface MiddlewareResolverInterface extends ResolverConfigInterface
      * Generate middleware.
      *
      * @param MiddlewareInterface|RequestHandlerInterface|string $middleware
-     * @return MiddlewareInterface
+     * @return MiddlewareInterface|RequestHandlerInterface
      *
      * @throws NotFoundContainerException|MiddlewareResolverInvalidArgumentException
      *
      * @phpstan-param TA_MiddlewareTypes $middleware
      */
-    public function resolve(MiddlewareInterface|RequestHandlerInterface|string $middleware): MiddlewareInterface;
+    public function resolve(MiddlewareInterface|RequestHandlerInterface|string $middleware): MiddlewareInterface|RequestHandlerInterface;
 }

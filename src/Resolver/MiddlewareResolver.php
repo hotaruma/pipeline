@@ -10,7 +10,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
-final class MiddlewareResolver extends Resolver implements MiddlewareResolverInterface
+class MiddlewareResolver extends Resolver implements MiddlewareResolverInterface
 {
     /**
      * @inheritDoc
@@ -24,11 +24,10 @@ final class MiddlewareResolver extends Resolver implements MiddlewareResolverInt
     /**
      * @inheritDoc
      */
-    public function resolve(MiddlewareInterface|RequestHandlerInterface|string $middleware): MiddlewareInterface
+    public function resolve(MiddlewareInterface|RequestHandlerInterface|string $middleware): MiddlewareInterface|RequestHandlerInterface
     {
         return match (true) {
             is_string($middleware) => $this->middlewareByString($middleware),
-            $middleware instanceof RequestHandlerInterface => $this->middlewareByRequestHandler($middleware),
             default => $middleware
         };
     }
@@ -36,17 +35,28 @@ final class MiddlewareResolver extends Resolver implements MiddlewareResolverInt
     /**
      * Create middleware by request class name.
      *
-     * @param class-string<RequestHandlerInterface|MiddlewareInterface> $className
+     * @param string $className
      * @return MiddlewareInterface
      *
      * @throws NotFoundContainerException|MiddlewareResolverInvalidArgumentException
+     *
+     * @phpstan-param TA_MIddlewareResolverStringType $className
      */
     protected function middlewareByString(string $className): MiddlewareInterface
     {
+        if (
+            !is_subclass_of($className, RequestHandlerInterface::class) &&
+            !is_subclass_of($className, MiddlewareInterface::class)
+        ) {
+            throw new MiddlewareResolverInvalidArgumentException("Invalid middleware provided.");
+        }
+
         return new class ($className, $this->getContainer()) implements MiddlewareInterface {
             /**
-             * @param class-string<RequestHandlerInterface|MiddlewareInterface> $className
+             * @param string $className
              * @param ContainerInterface $container
+             *
+             * @phpstan-param TA_MIddlewareResolverStringType $className
              */
             public function __construct(
                 protected string             $className,
@@ -71,38 +81,6 @@ final class MiddlewareResolver extends Resolver implements MiddlewareResolverInt
                     default =>
                     throw new MiddlewareResolverInvalidArgumentException("Invalid middleware provided.")
                 };
-            }
-        };
-    }
-
-    /**
-     * Create middleware by request handler.
-     *
-     * @param RequestHandlerInterface $handler
-     * @return MiddlewareInterface
-     */
-    protected function middlewareByRequestHandler(RequestHandlerInterface $handler): MiddlewareInterface
-    {
-        return new class ($handler) implements MiddlewareInterface {
-            /**
-             * @param RequestHandlerInterface $handler
-             */
-            public function __construct(
-                protected RequestHandlerInterface $handler
-            ) {
-            }
-
-            /**
-             * @param ServerRequestInterface $request
-             * @param RequestHandlerInterface $handler
-             *
-             * @return ResponseInterface
-             */
-            public function process(
-                ServerRequestInterface  $request,
-                RequestHandlerInterface $handler
-            ): ResponseInterface {
-                return $this->handler->handle($request);
             }
         };
     }

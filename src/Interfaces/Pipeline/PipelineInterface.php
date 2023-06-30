@@ -16,7 +16,7 @@ use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 
 /**
- * @template TMiddlewareStore of MiddlewareStoreInterface<mixed, MiddlewareInterface>
+ * @template TMiddlewareStore of TA_MiddlewareStore
  */
 interface PipelineInterface extends RequestHandlerInterface, MiddlewareInterface
 {
@@ -36,12 +36,14 @@ interface PipelineInterface extends RequestHandlerInterface, MiddlewareInterface
      * Start pipeline without final handler.
      *
      * @param ServerRequestInterface $request
-     * @param RequestHandlerInterface $handler
+     * @param RequestHandlerInterface|PipelineInterface|callable|string $handler
      * @return ResponseInterface
      *
      * @throws PipelineEmptyStoreException|NotFoundContainerException|MiddlewareResolverInvalidArgumentException|RequestHandlerResolverInvalidArgumentException
+     *
+     * @phpstan-param TA_RequestHandlerTypes $handler
      */
-    public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface;
+    public function process(ServerRequestInterface $request, RequestHandlerInterface|PipelineInterface|callable|string $handler): ResponseInterface;
 
     /**
      * Start pipeline.
@@ -52,6 +54,13 @@ interface PipelineInterface extends RequestHandlerInterface, MiddlewareInterface
      * @throws PipelineEmptyStoreException|NotFoundContainerException|MiddlewareResolverInvalidArgumentException|RequestHandlerResolverInvalidArgumentException
      */
     public function handle(ServerRequestInterface $request): ResponseInterface;
+
+    /**
+     * Rewind middleware store.
+     *
+     * @return void
+     */
+    public function rewind(): void;
 
     /**
      * Set middlewares store type.

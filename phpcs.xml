@@ -3,5 +3,11 @@
     <rule ref="PSR12">
         <exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing"/>
     </rule>
+    <rule ref="Generic.Files.LineLength">
+        <properties>
+            <property name="lineLimit" value="150"/>
+        </properties>
+    </rule>
     <file>src</file>
+    <file>tests</file>
 </ruleset>

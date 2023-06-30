@@ -10,7 +10,7 @@ use Psr\Container\ContainerInterface;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{RequestHandlerInterface};
 
-final class RequestHandlerResolver extends Resolver implements RequestHandlerResolverInterface
+class RequestHandlerResolver extends Resolver implements RequestHandlerResolverInterface
 {
     /**
      * @inheritDoc
@@ -70,17 +70,27 @@ final class RequestHandlerResolver extends Resolver implements RequestHandlerRes
      *
      * @throws RequestHandlerResolverInvalidArgumentException
      *
-     * @phpstan-param (callable&string)|class-string $handler
+     * @phpstan-param TA_RequestHandlerResolverStringType $handler
      */
     protected function requestHandlerByString(string $handler): RequestHandlerInterface
     {
+        if (
+            !is_subclass_of($handler, PipelineInterface::class) &&
+            !is_subclass_of($handler, RequestHandlerInterface::class) &&
+            !is_callable($handler)
+        ) {
+            throw new RequestHandlerResolverInvalidArgumentException("Invalid request handler provided.");
+        }
+
         return new class ($handler, $this->getContainer()) implements RequestHandlerInterface {
             /**
-             * @param (callable&string)|class-string $handler
+             * @param string $handler
              * @param ContainerInterface $container
+             *
+             * @phpstan-param TA_RequestHandlerResolverStringType $handler
              */
             public function __construct(
-                protected mixed              $handler,
+                protected string             $handler,
                 protected ContainerInterface $container
             ) {
             }
@@ -93,7 +103,7 @@ final class RequestHandlerResolver extends Resolver implements RequestHandlerRes
             {
                 $handler = class_exists($this->handler) ? $this->container->get($this->handler) : $this->handler;
                 return match (true) {
-                    $handler instanceof RequestHandlerInterface => $handler->handle($request),
+                    $handler instanceof PipelineInterface, $handler instanceof RequestHandlerInterface => $handler->handle($request),
                     is_callable($handler) => $handler($request),
                     default =>
                     throw new RequestHandlerResolverInvalidArgumentException("Invalid request handler provided.")

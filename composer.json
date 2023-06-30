@@ -1,5 +1,14 @@
 {
     "name": "hotaruma/pipeline",
+    "description": "Pipeline library built on top of PSR-15, PSR-7, and PSR-11 standards for handling HTTP requests and responses with middleware support.",
+    "keywords": [
+        "middleware",
+        "pipeline",
+        "psr-15",
+        "psr-11",
+        "psr-7"
+    ],
+    "homepage": "https://github.com/hotaruma/pipeline",
     "type": "library",
     "license": "MIT",
     "authors": [

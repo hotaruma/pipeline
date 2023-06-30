@@ -6,20 +6,21 @@ namespace Hotaruma\Pipeline\MiddlewareStore;
 
 use Hotaruma\Pipeline\Interfaces\MiddlewareStore\MiddlewareStoreInterface;
 use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 use SplQueue;
 
 /**
- * @template TValue of MiddlewareInterface
+ * @template TValue of MiddlewareInterface|RequestHandlerInterface
  *
  * @extends SplQueue<TValue>
- * @implements MiddlewareStoreInterface<int, TValue>
+ * @implements MiddlewareStoreInterface<TValue>
  */
 final class MiddlewareStore extends SplQueue implements MiddlewareStoreInterface
 {
     /**
      * @inheritDoc
      */
-    public function append(MiddlewareInterface $middleware): void
+    public function append(MiddlewareInterface|RequestHandlerInterface $middleware): void
     {
         parent::enqueue($middleware);
     }
@@ -27,7 +28,7 @@ final class MiddlewareStore extends SplQueue implements MiddlewareStoreInterface
     /**
      * @inheritDoc
      */
-    public function receive(): MiddlewareInterface
+    public function receive(): MiddlewareInterface|RequestHandlerInterface
     {
         return parent::dequeue();
     }
@@ -37,6 +38,6 @@ final class MiddlewareStore extends SplQueue implements MiddlewareStoreInterface
      */
     public function hasNext(): bool
     {
-        return $this->isEmpty();
+        return !$this->isEmpty();
     }
 }
