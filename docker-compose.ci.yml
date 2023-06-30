@@ -4,7 +4,7 @@ services:
     php-cli:
       stdin_open: true
       tty: true
-      image: ${PROJECT_NAME}_ci_php_cli:1.0
+      image: ci_php_cli:1.0
       build:
         context: ./
         dockerfile: ./docker/.ci/php-cli/Dockerfile
