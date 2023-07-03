@@ -332,7 +332,7 @@ class PipelineTest extends TestCase
     /**
      * @throws Exception
      */
-    public function testRewind(): void
+    public function testInvalidMiddlewareStore(): void
     {
         $pipeline = new Pipeline();
 
@@ -348,10 +348,37 @@ class PipelineTest extends TestCase
 
         $this->expectException(PipelineEmptyStoreException::class);
         $pipeline->handle($request);
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function testRewind(): void
+    {
+        $pipeline = new Pipeline();
+
+        $request = $this->createMock(ServerRequestInterface::class);
+        $response = $this->createMock(ResponseInterface::class);
+        $response2 = $this->createMock(ResponseInterface::class);
+
+        $handler = $this->createRequestHandler($response);
+        $handler2 = $this->createRequestHandler($response2);
+
+        $pipeline->pipe($handler);
+
+        $resultResponse = $pipeline->handle($request);
+        $this->assertSame($response, $resultResponse);
+
+        $pipeline->pipe($handler2);
+        $resultResponse = $pipeline->handle($request);
+        $this->assertSame($response2, $resultResponse);
 
         $pipeline->rewind();
         $resultResponse = $pipeline->handle($request);
         $this->assertSame($response, $resultResponse);
+
+        $resultResponse = $pipeline->handle($request);
+        $this->assertSame($response2, $resultResponse);
     }
 
     /**

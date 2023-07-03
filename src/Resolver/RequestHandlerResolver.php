@@ -117,16 +117,12 @@ class RequestHandlerResolver extends Resolver implements RequestHandlerResolverI
      *
      * @param PipelineInterface $pipeline
      * @return RequestHandlerInterface
-     *
-     * @phpstan-param TA_Pipeline $pipeline
      */
     protected function requestHandlerByPipeline(PipelineInterface $pipeline): RequestHandlerInterface
     {
         return new class ($pipeline) implements RequestHandlerInterface {
             /**
              * @param PipelineInterface $pipeline
-             *
-             * @phpstan-param TA_Pipeline $pipeline
              */
             public function __construct(
                 protected PipelineInterface $pipeline

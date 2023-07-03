@@ -15,11 +15,6 @@ use Hotaruma\Pipeline\MiddlewareStore\MiddlewareStore;
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 
-/**
- * @template TMiddlewareStore of TA_MiddlewareStore
- *
- * @implements PipelineInterface<TMiddlewareStore>
- */
 class Pipeline implements PipelineInterface
 {
     /**
@@ -28,18 +23,26 @@ class Pipeline implements PipelineInterface
     protected RequestHandlerInterface $selfRequestHandlerInstance;
 
     /**
-     * @param MiddlewareStoreInterface $middlewareStore
-     * @param MiddlewareResolverInterface $middlewareResolver
-     * @param RequestHandlerResolverInterface $requestHandlerResolver
-     *
-     * @phpstan-param TMiddlewareStore $middlewareStore
+     * @var bool
      */
-    public function __construct(
-        protected MiddlewareStoreInterface        $middlewareStore = new MiddlewareStore(),
-        protected MiddlewareResolverInterface     $middlewareResolver = new MiddlewareResolver(),
-        protected RequestHandlerResolverInterface $requestHandlerResolver = new RequestHandlerResolver()
-    ) {
-    }
+    protected bool $rewindStatus;
+
+    /**
+     * @var MiddlewareStoreInterface
+     *
+     * @phpstan-var TA_MiddlewareStore
+     */
+    protected MiddlewareStoreInterface $middlewareStore;
+
+    /**
+     * @var MiddlewareResolverInterface
+     */
+    protected MiddlewareResolverInterface $middlewareResolver;
+
+    /**
+     * @var RequestHandlerResolverInterface
+     */
+    protected RequestHandlerResolverInterface $requestHandlerResolver;
 
     /**
      * @inheritDoc
@@ -70,11 +73,15 @@ class Pipeline implements PipelineInterface
      */
     public function handle(ServerRequestInterface $request): ResponseInterface
     {
-        if (!$this->getMiddlewareStore()->hasNext()) {
+        if (!$this->getRewindStatus()) {
+            $this->rewind();
+        }
+        if (!$this->getMiddlewareStore()->valid()) {
             throw new PipelineEmptyStoreException();
         }
 
-        $next = $this->getMiddlewareStore()->receive();
+        $next = $this->getMiddlewareStore()->current();
+        $this->getMiddlewareStore()->next();
         return match (true) {
             $next instanceof PipelineInterface => $next->process($request, $this->getSelfRequestHandlerInstance()),
             $next instanceof MiddlewareInterface => $next->process($request, $this),
@@ -87,6 +94,7 @@ class Pipeline implements PipelineInterface
      */
     public function rewind(): void
     {
+        $this->rewindStatus(true);
         $this->getMiddlewareStore()->rewind();
     }
 
@@ -122,7 +130,7 @@ class Pipeline implements PipelineInterface
      */
     public function getMiddlewareResolver(): MiddlewareResolverInterface
     {
-        return $this->middlewareResolver;
+        return $this->middlewareResolver ??= new MiddlewareResolver();
     }
 
     /**
@@ -130,17 +138,17 @@ class Pipeline implements PipelineInterface
      */
     public function getRequestHandlerResolver(): RequestHandlerResolverInterface
     {
-        return $this->requestHandlerResolver;
+        return $this->requestHandlerResolver ??= new RequestHandlerResolver();
     }
 
     /**
      * @return MiddlewareStoreInterface
      *
-     * @phpstan-return TMiddlewareStore
+     * @phpstan-return TA_MiddlewareStore
      */
     protected function getMiddlewareStore(): MiddlewareStoreInterface
     {
-        return $this->middlewareStore;
+        return $this->middlewareStore ??= new MiddlewareStore();
     }
 
     /**
@@ -151,5 +159,22 @@ class Pipeline implements PipelineInterface
     protected function getSelfRequestHandlerInstance(): RequestHandlerInterface
     {
         return $this->selfRequestHandlerInstance ??= $this->getRequestHandlerResolver()->resolve($this);
+    }
+
+    /**
+     * @param bool $status
+     * @return void
+     */
+    protected function rewindStatus(bool $status): void
+    {
+        $this->rewindStatus = $status;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function getRewindStatus(): bool
+    {
+        return $this->rewindStatus ??= false;
     }
 }
