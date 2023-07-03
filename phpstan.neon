@@ -12,8 +12,7 @@ parameters:
     	TA_C_ServerRequestInterface: 'Psr\Http\Message\ServerRequestInterface'
     	TA_C_ResponseInterface: 'Psr\Http\Message\ResponseInterface'
 
-    	TA_MiddlewareStore: 'TA_C_MiddlewareStoreInterface<TA_C_MiddlewareInterface|TA_C_RequestHandlerInterface>'
-    	TA_Pipeline: 'TA_C_PipelineInterface<TA_MiddlewareStore>'
+    	TA_MiddlewareStore: 'TA_C_MiddlewareStoreInterface<mixed, TA_C_MiddlewareInterface|TA_C_RequestHandlerInterface>'
 
     	TA_MiddlewareTypes: 'TA_C_MiddlewareInterface|TA_C_RequestHandlerInterface|class-string<TA_C_MiddlewareInterface|TA_C_RequestHandlerInterface>'
     	TA_RequestHandlerTypes:

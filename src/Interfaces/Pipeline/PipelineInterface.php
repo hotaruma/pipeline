@@ -16,9 +16,6 @@ use Hotaruma\Pipeline\Interfaces\{Resolver\MiddlewareResolverInterface,
 use Psr\Http\Server\{MiddlewareInterface, RequestHandlerInterface};
 use Psr\Http\Message\{ResponseInterface, ServerRequestInterface};
 
-/**
- * @template TMiddlewareStore of TA_MiddlewareStore
- */
 interface PipelineInterface extends RequestHandlerInterface, MiddlewareInterface
 {
     /**
@@ -70,7 +67,7 @@ interface PipelineInterface extends RequestHandlerInterface, MiddlewareInterface
      * @param MiddlewareStoreInterface $middlewareStore
      * @return PipelineInterface
      *
-     * @phpstan-param TMiddlewareStore $middlewareStore
+     * @phpstan-param TA_MiddlewareStore $middlewareStore
      * @phpstan-return static
      */
     public function middlewareStore(MiddlewareStoreInterface $middlewareStore): PipelineInterface;

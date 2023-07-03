@@ -23,8 +23,9 @@ class MiddlewareStoreTest extends TestCase
         $store->append($middleware1);
         $store->append($middleware2);
 
-        $this->assertSame($middleware1, $store->receive());
-        $this->assertSame($middleware2, $store->receive());
+        $this->assertSame($middleware1, $store->current());
+        $store->next();
+        $this->assertSame($middleware2, $store->current());
     }
 
     /**
@@ -33,14 +34,15 @@ class MiddlewareStoreTest extends TestCase
     public function testHasNext(): void
     {
         $store = new MiddlewareStore();
-        $this->assertFalse($store->hasNext());
+        $this->assertFalse($store->valid());
 
         $middleware = $this->createMock(MiddlewareInterface::class);
 
         $store->append($middleware);
-        $this->assertTrue($store->hasNext());
+        $this->assertTrue($store->valid());
 
-        $store->receive();
-        $this->assertFalse($store->hasNext());
+        $store->current();
+        $store->next();
+        $this->assertFalse($store->valid());
     }
 }

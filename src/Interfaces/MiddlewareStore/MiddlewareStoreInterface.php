@@ -4,13 +4,18 @@ declare(strict_types=1);
 
 namespace Hotaruma\Pipeline\Interfaces\MiddlewareStore;
 
+use Hotaruma\Pipeline\Exception\MiddlewareStoreOutOfRangeException;
+use Iterator;
 use Psr\Http\Server\MiddlewareInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 
 /**
+ * @template TKey
  * @template TValue of MiddlewareInterface|RequestHandlerInterface
+ *
+ * @extends Iterator<TKey, TValue>
  */
-interface MiddlewareStoreInterface
+interface MiddlewareStoreInterface extends Iterator
 {
     /**
      * Add middleware to store.
@@ -23,25 +28,33 @@ interface MiddlewareStoreInterface
     public function append(MiddlewareInterface|RequestHandlerInterface $middleware): void;
 
     /**
-     * Return next middleware.
+     * Return current middleware.
      *
      * @return MiddlewareInterface|RequestHandlerInterface
      *
+     * @throws MiddlewareStoreOutOfRangeException
+     *
      * @phpstan-return TValue
      */
-    public function receive(): MiddlewareInterface|RequestHandlerInterface;
+    public function current(): MiddlewareInterface|RequestHandlerInterface;
 
     /**
-     * Checks if there is a next middleware in the store.
-     *
-     * @return bool
+     * @inheritDoc
      */
-    public function hasNext(): bool;
+    public function key(): mixed;
 
     /**
-     * Rewind middleware position to start.
-     *
-     * @return void
+     * @inheritDoc
+     */
+    public function next(): void;
+
+    /**
+     * @inheritDoc
      */
     public function rewind(): void;
+
+    /**
+     * @inheritDoc
+     */
+    public function valid(): bool;
 }
