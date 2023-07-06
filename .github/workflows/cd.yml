@@ -7,6 +7,35 @@ on:
 
 jobs:
 
+  build:
+    name: "Build"
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php: [ '8.1' ]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      - name: Install dependencies
+        run: composer install
+
+      - name: Cache dependencies installed with Composer
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+
   packagist-deploy:
     name: "Packagist deploy"
     runs-on: ubuntu-latest
@@ -20,23 +49,38 @@ jobs:
           api-token: ${{ secrets.packagist_token }}
 
   upload-coverage-report:
+    needs: build
+
     name: "Upload coverage results"
     runs-on: ubuntu-latest
 
-    steps:
+    strategy:
+      matrix:
+        php: [ '8.1' ]
 
-      - uses: actions/download-artifact@v3
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
         with:
-          name: coverage-report
+          php-version: ${{ matrix.php }}
+          coverage: xdebug
+
+      - name: Get composer cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+
+      - name: Run test suite
+        run: composer run-script test
 
       - uses: codecov/codecov-action@v3
         id: download-codecov
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: clover.xml
+          files: ./tmp/clover.xml
           flags: unittests
           fail_ci_if_error: true
           verbose: true
-
-      - name: Download path
-        run: echo ${{steps.download-codecov.outputs.download-path}}
