@@ -1,9 +1,11 @@
 # PSR-15 Pipeline
 
-[![Build and Test](https://github.com/hotaruma/pipeline/actions/workflows/cicd.yml/badge.svg)](https://github.com/hotaruma/pipeline/actions/workflows/cicd.yml)
+[![Build and Test](https://github.com/hotaruma/pipeline/actions/workflows/ci.yml/badge.svg)](https://github.com/hotaruma/pipeline/actions/workflows/ci.yml)
 [![Latest Version](https://img.shields.io/github/release/hotaruma/pipeline.svg)](https://github.com/hotaruma/pipeline/releases)
 [![License](https://img.shields.io/github/license/hotaruma/pipeline.svg)](https://github.com/hotaruma/pipeline/blob/master/LICENSE)
+![PHP from Packagist](https://img.shields.io/packagist/php-v/hotaruma/pipeline)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/hotaruma/pipeline.svg)](https://packagist.org/packages/hotaruma/pipeline)
+[![codecov](https://codecov.io/gh/hotaruma/pipeline/branch/main/graph/badge.svg)](https://codecov.io/gh/hotaruma/pipeline)
 
 Pipeline library for handling HTTP requests and responses with middleware.
 
@@ -22,7 +24,7 @@ composer require hotaruma/pipeline
 
 ## Usage
 
-Simple example of how you can use Pipeline to process an HTTP request:
+Simple example of how you can use `Pipeline` to process an HTTP request:
 
 ```php
 use Hotaruma\Pipeline\Pipeline;

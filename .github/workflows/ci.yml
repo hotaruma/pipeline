@@ -1,0 +1,127 @@
+name: ci
+
+on:
+  pull_request:
+    branches: [ 'main' ]
+  workflow_dispatch:
+
+jobs:
+
+  build:
+    name: "Build"
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php: [ '8.1' ]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - name: Validate composer.json and composer.lock
+        run: composer validate --strict
+
+      - name: Install dependencies
+        run: composer install
+
+      - name: Cache dependencies installed with Composer
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+
+  coding-standards:
+    needs: build
+
+    name: "Coding Standards"
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php: [ '8.1' ]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - name: Get composer cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+
+      - name: Run code style check
+        run: composer run-script code-style
+
+  test:
+    needs: build
+
+    name: "PHPUnit"
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php: [ '8.1', '8.2' ]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: xdebug
+
+      - name: Get composer cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+
+      - name: Run test suite
+        run: composer run-script test
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v3
+        with:
+          name: coverage-report
+          path: tmp/clover.xml
+
+  static-analysis-phpstan:
+    needs: build
+
+    name: "PHPStan"
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php: [ '8.1', '8.2' ]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - name: Get composer cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+
+      - name: Run code analyse
+        run: composer run-script analyse
