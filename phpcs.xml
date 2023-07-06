@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" name="coding-style">
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="./vendor/squizlabs/php_codesniffer/phpcs.xsd"
+         name="Coding Standard"
+>
     <rule ref="PSR12">
         <exclude name="Squiz.Functions.FunctionDeclarationArgumentSpacing"/>
     </rule>
@@ -8,6 +11,10 @@
             <property name="lineLimit" value="150"/>
         </properties>
     </rule>
+
+    <arg name="extensions" value="php"/>
+    <arg value="ps"/>
+
     <file>src</file>
     <file>tests</file>
 </ruleset>

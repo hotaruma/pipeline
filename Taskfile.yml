@@ -42,27 +42,3 @@ tasks:
     desc: "exec sh"
     cmds:
       - docker-compose run php-cli /bin/sh
-
-
-  ci-up:
-    desc: "ci build"
-    cmds:
-      - task: ci-down
-      - docker-compose -f docker-compose.ci.yml build --pull
-      - docker-compose -f docker-compose.ci.yml up -d
-      - docker-compose -f docker-compose.ci.yml exec -T php-cli composer install
-
-  ci-run-test:
-    desc: "ci run unit test"
-    cmds:
-      - docker-compose -f docker-compose.ci.yml exec -T php-cli composer run-script test
-
-  ci-run-code-style:
-    desc: "ci run code-style test"
-    cmds:
-      - docker-compose -f docker-compose.ci.yml exec -T php-cli composer run-script code_style
-
-  ci-down:
-    desc: "ci down"
-    cmds:
-      - docker-compose -f docker-compose.ci.yml down
