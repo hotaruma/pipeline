@@ -125,3 +125,31 @@ jobs:
 
       - name: Run code analyse
         run: composer run-script analyse
+
+  benchmark:
+    needs: build
+
+    name: "PHPBench"
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        php: [ '8.1', '8.2' ]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+
+      - name: Get composer cache
+        uses: actions/cache@v3
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.lock') }}
+
+      - name: Run benchmark
+        run: composer run-script bench

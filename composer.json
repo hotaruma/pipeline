@@ -24,7 +24,8 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Tests\\": "tests/"
+            "Hotaruma\\Tests\\": "tests/",
+            "Hotaruma\\Benchmark\\": "benchmark/"
         }
     },
     "minimum-stability": "stable",
@@ -35,9 +36,11 @@
         "psr/container": "^2.0"
     },
     "require-dev": {
+        "mockery/mockery": "^1.6",
+        "phpbench/phpbench": "^1.2",
+        "phpstan/phpstan": "^1.10",
         "phpunit/phpunit": "^10",
-        "squizlabs/php_codesniffer": "^3.7",
-        "phpstan/phpstan": "^1.10"
+        "squizlabs/php_codesniffer": "^3.7"
     },
     "scripts": {
         "test": [
@@ -51,6 +54,9 @@
         ],
         "analyse": [
             "phpstan analyse"
+        ],
+        "bench": [
+            "phpbench run --report=aggregate"
         ]
     },
     "config": {

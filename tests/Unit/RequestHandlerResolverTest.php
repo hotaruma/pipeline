@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit;
+namespace Hotaruma\Tests\Unit;
 
 use Hotaruma\Pipeline\Exception\{NotFoundContainerException, RequestHandlerResolverInvalidArgumentException};
 use Hotaruma\Pipeline\Interfaces\Pipeline\PipelineInterface;
