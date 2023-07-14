@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Tests\Unit;
+namespace Hotaruma\Tests\Unit;
 
 use Hotaruma\Pipeline\MiddlewareStore\MiddlewareStore;
 use PHPUnit\Framework\MockObject\Exception;
