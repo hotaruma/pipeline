@@ -18,22 +18,19 @@ final class MiddlewareStore implements MiddlewareStoreInterface
     /**
      * @var int
      */
-    protected int $position;
+    protected int $position = 0;
 
     /**
-     * @var array<TValue>
+     * @var array<int, TValue>
      */
-    protected array $store;
+    protected array $store = [];
 
     /**
      * @inheritDoc
      */
     public function append(MiddlewareInterface|RequestHandlerInterface $middleware): void
     {
-        $store = $this->getStore();
-        $store[] = $middleware;
-
-        $this->store($store);
+        $this->store[] = $middleware;
     }
 
     /**
@@ -41,7 +38,7 @@ final class MiddlewareStore implements MiddlewareStoreInterface
      */
     public function rewind(): void
     {
-        $this->position(0);
+        $this->position = 0;
     }
 
     /**
@@ -49,7 +46,7 @@ final class MiddlewareStore implements MiddlewareStoreInterface
      */
     public function current(): MiddlewareInterface|RequestHandlerInterface
     {
-        return $this->getStore()[$this->getPosition()] ??
+        return $this->store[$this->position] ??
             throw new MiddlewareStoreOutOfRangeException('The current middleware is out of range.');
     }
 
@@ -58,7 +55,7 @@ final class MiddlewareStore implements MiddlewareStoreInterface
      */
     public function key(): int
     {
-        return $this->getPosition();
+        return $this->position;
     }
 
     /**
@@ -66,8 +63,7 @@ final class MiddlewareStore implements MiddlewareStoreInterface
      */
     public function next(): void
     {
-        $position = $this->getPosition();
-        $this->position(++$position);
+        $this->position++;
     }
 
     /**
@@ -75,40 +71,6 @@ final class MiddlewareStore implements MiddlewareStoreInterface
      */
     public function valid(): bool
     {
-        return isset($this->getStore()[$this->getPosition()]);
-    }
-
-    /**
-     * @param int $position
-     * @return void
-     */
-    protected function position(int $position): void
-    {
-        $this->position = $position;
-    }
-
-    /**
-     * @return int
-     */
-    protected function getPosition(): int
-    {
-        return $this->position ??= 0;
-    }
-
-    /**
-     * @param array<TValue> $store
-     * @return void
-     */
-    protected function store(array $store): void
-    {
-        $this->store = $store;
-    }
-
-    /**
-     * @return array<TValue>
-     */
-    protected function getStore(): array
-    {
-        return $this->store ??= [];
+        return isset($this->store[$this->position]);
     }
 }
