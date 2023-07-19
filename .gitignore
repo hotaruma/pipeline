@@ -2,6 +2,8 @@
 .phpunit.result.cache
 .env
 
+phpunit.xml
+
 vendor
 tests/tmp
 tmp
