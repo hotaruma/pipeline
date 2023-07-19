@@ -3,6 +3,7 @@
 .env
 
 phpunit.xml
+phpbench.json
 
 vendor
 tests/tmp
