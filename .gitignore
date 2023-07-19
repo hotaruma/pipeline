@@ -4,6 +4,7 @@
 
 phpunit.xml
 phpbench.json
+phpcs.xml
 
 vendor
 tests/tmp
